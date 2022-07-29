@@ -1,6 +1,27 @@
 """Enums for displaying data stored in pokemon"""
 
 from enum import Enum
+class Type(Enum):
+    """Enum for types"""
+    NORMAL = 0
+    FIGHTING = 1
+    FLYING = 2
+    POISON = 3
+    GROUND = 4
+    ROCK = 5
+    BUG = 6
+    GHOST = 7
+    STEEL = 8
+    UNK = 9
+    FIRE = 10
+    WATER = 11
+    GRASS = 12
+    ELECTRIC = 13
+    PSYCHIC = 14
+    ICE = 15
+    DRAGON = 16
+    DARK = 17
+    
 class Gender(Enum):
     """Enum for gender"""
     MALE = 0

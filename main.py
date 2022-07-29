@@ -1,7 +1,7 @@
 """PokeWalker Course Injector"""
 from dataclasses import dataclass
 from typing import List
-from pokemonenums import Species, ITEMS, Move, Gender
+from pokemonenums import Species, Move, Gender, Type, ITEMS
 
 def read_binary(filename: str):
     """Read binary file as bytearray"""
@@ -38,16 +38,39 @@ class PokeWalkerSlot:
         return data
 
 @dataclass
+class PokeWalkerItem:
+    """PokeWalker Item"""
+    item: str
+    step_requirement: int
+    rarity_weight: int
+
+    def to_bytes(self) -> bytearray:
+        """Convert PokeWalkerItem to bytearray"""
+        data = bytearray()
+        data += ITEMS.index(self.item).to_bytes(2, 'little')
+        data += self.step_requirement.to_bytes(2, 'little')
+        data += self.rarity_weight.to_bytes(2, 'little')
+        return data
+
+@dataclass
 class PokeWalkerCourse:
     """PokeWalker Course Data"""
     group_a: List[PokeWalkerSlot]
     group_b: List[PokeWalkerSlot]
     group_c: List[PokeWalkerSlot]
+    items: List[PokeWalkerItem]
+    special_types: List[Type]
     default_data_0: bytearray = DEFAULT_DATA[0:8]
-    default_data_1: bytearray = DEFAULT_DATA[128:200]
+    default_data_1: bytearray = DEFAULT_DATA[191:200]
 
     def to_bytes(self) -> bytearray:
         """Convert PokeWalkerCourse to bytearray"""
+        if len(self.group_a) != 2 or len(self.group_b) != 2 or len(self.group_c) != 2:
+            raise Exception("All groups must contain 2 pokemon")
+        if len(self.items) != 10:
+            raise Exception("10 items are required")
+        if len(self.special_types) != 3:
+            raise Exception("3 special types are required")
         data = bytearray()
         data += self.default_data_0
         for slot in self.group_a:
@@ -56,6 +79,10 @@ class PokeWalkerCourse:
             data += slot.to_bytes()
         for slot in self.group_c:
             data += slot.to_bytes()
+        for item in self.items:
+            data += item.to_bytes()
+        for special_type in self.special_types:
+            data += int(special_type.value).to_bytes(1, 'little')
         data += self.default_data_1
         return data
 
@@ -123,7 +150,19 @@ arceus = PokeWalkerSlot(
     rarity_weight=100,
 )
 
-course = PokeWalkerCourse([arceus, arceus], [arceus, arceus], [arceus, arceus])
+master_ball = PokeWalkerItem(
+    item="Master Ball",
+    step_requirement=0,
+    rarity_weight=100,
+)
+
+course = PokeWalkerCourse(
+    group_a=[arceus] * 2,
+    group_b=[arceus] * 2,
+    group_c=[arceus] * 2,
+    items=[master_ball] * 10,
+    special_types=[Type.FIRE, Type.WATER, Type.GRASS]
+)
 
 with open("usrcheat.dat", "wb+") as usrcheat:
     usrcheat.write(course.to_usr_cheat_dat())
