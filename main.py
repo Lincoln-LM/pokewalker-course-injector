@@ -102,6 +102,10 @@ class PokeWalkerCourse:
         game_id_text = "IPKE"
         game_id_value = 0x4DFFBF91
         game_title_text = "USA HeartGold"
+        # # USA SoulSilver
+        # game_id_text = "IPGE"
+        # game_id_value = 0x2D5118CA
+        # game_title_text = "USA SoulSilver"
         code_title_text = "Custom PokeWalker Course"
         code_text = self.to_ar_code()
 
