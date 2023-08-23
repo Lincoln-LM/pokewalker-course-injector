@@ -1,7 +1,7 @@
 """PokeWalker Course Injector"""
 from dataclasses import dataclass
 from typing import List
-from pokemonenums import Species, Move, Gender, Type, ITEMS
+from pokemonenums import RouteImage, Species, Move, Gender, Type, ITEMS
 
 def read_binary(filename: str):
     """Read binary file as bytearray"""
@@ -55,16 +55,18 @@ class PokeWalkerItem:
 @dataclass
 class PokeWalkerCourse:
     """PokeWalker Course Data"""
+    watt_requirement: int
+    route_image: RouteImage
     group_a: List[PokeWalkerSlot]
     group_b: List[PokeWalkerSlot]
     group_c: List[PokeWalkerSlot]
     items: List[PokeWalkerItem]
     special_types: List[Type]
-    default_data_0: bytearray = DEFAULT_DATA[0:8]
-    default_data_1: bytearray = DEFAULT_DATA[191:200]
 
     def to_bytes(self) -> bytearray:
         """Convert PokeWalkerCourse to bytearray"""
+        if not 0 <= self.watt_requirement < 2 ** 32:
+            raise Exception("Watt requirement must be a 32-bit unsigned integer")
         if len(self.group_a) != 2 or len(self.group_b) != 2 or len(self.group_c) != 2:
             raise Exception("All groups must contain 2 pokemon")
         if len(self.items) != 10:
@@ -72,7 +74,8 @@ class PokeWalkerCourse:
         if len(self.special_types) != 3:
             raise Exception("3 special types are required")
         data = bytearray()
-        data += self.default_data_0
+        data += self.watt_requirement.to_bytes(4, 'little')
+        data += int(self.route_image.value).to_bytes(4, 'little')
         for slot in self.group_a:
             data += slot.to_bytes()
         for slot in self.group_b:
@@ -83,7 +86,7 @@ class PokeWalkerCourse:
             data += item.to_bytes()
         for special_type in self.special_types:
             data += int(special_type.value).to_bytes(1, 'little')
-        data += self.default_data_1
+        data += (0).to_bytes(1, 'little')
         return data
 
     def to_ar_code(self) -> str:
@@ -151,16 +154,18 @@ arceus = PokeWalkerSlot(
     gender=Gender.GENDERLESS,
     moves=[Move.JUDGMENT, Move.EXTREMESPEED, Move.SWORDSDANCE, Move.RECOVER],
     step_requirement=0,
-    rarity_weight=100,
+    rarity_weight=33,
 )
 
 master_ball = PokeWalkerItem(
     item="Master Ball",
     step_requirement=0,
-    rarity_weight=100,
+    rarity_weight=10,
 )
 
 course = PokeWalkerCourse(
+    watt_requirement=0,
+    route_image=RouteImage.VOLCANO,
     group_a=[arceus] * 2,
     group_b=[arceus] * 2,
     group_c=[arceus] * 2,

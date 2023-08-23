@@ -1,6 +1,21 @@
 """Enums for displaying data stored in pokemon"""
 
 from enum import Enum
+
+# TODO: IntEnum
+
+class RouteImage(Enum):
+    """Enum for pokewalker route images"""
+    # https://dmitry.gr/?r=05.Projects&proj=28.%20pokewalker#_TOC_2dec5ee9db863ffb68915b70bce4efe4
+    FIELD = 1
+    FOREST = 2
+    SUBURBS = 3
+    URBAN = 4
+    VOLCANO = 5
+    CAVE = 6
+    LAKE = 7
+    BEACH = 8
+
 class Type(Enum):
     """Enum for types"""
     NORMAL = 0
